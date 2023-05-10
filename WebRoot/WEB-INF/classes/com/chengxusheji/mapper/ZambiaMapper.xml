@@ -1,0 +1,50 @@
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.ZambiaMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加新闻赞记录 -->
+	<insert id="addZambia" parameterType="zambia">
+		insert into t_zambia(newsObj,userObj,zambiaTime) values 
+		(#{newsObj.newsId},#{userObj.user_name},#{zambiaTime})
+	</insert>
+
+	<!-- 按照查询条件分页查询新闻赞记录 -->
+	<select id="queryZambia" resultMap="zambiaMap" >
+		select t_zambia.* from t_zambia,t_news,t_userInfo ${where} and t_zambia.newsObj = t_news.newsId and t_zambia.userObj = t_userInfo.user_name limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="zambiaMap" type="zambia">
+        <id property="zambiaId" column="zambiaId" />
+        <association property="newsObj" column="newsObj" select="com.chengxusheji.mapper.NewsMapper.getNews" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有新闻赞记录 -->
+	<select id="queryZambiaList" resultMap="zambiaMap" >
+		select t_zambia.* from t_zambia,t_news,t_userInfo ${where} and t_zambia.newsObj = t_news.newsId and t_zambia.userObj = t_userInfo.user_name
+	</select>
+
+    <!-- 按照查询条件的新闻赞记录数 -->
+	<select id="queryZambiaCount" resultType="int">
+		select count(*) from t_zambia,t_news,t_userInfo ${where} and t_zambia.newsObj = t_news.newsId and t_zambia.userObj = t_userInfo.user_name
+	</select>
+
+	<!-- 根据主键查询某个新闻赞记录 -->
+	<select id="getZambia" parameterType="int" resultMap="zambiaMap">
+		select * from t_zambia where t_zambia.zambiaId = #{zambiaId}
+	</select>
+
+	<!-- 更新新闻赞记录 -->
+	<update id="updateZambia" parameterType="zambia">
+		update t_zambia set newsObj=#{newsObj.newsId},userObj=#{userObj.user_name},zambiaTime=#{zambiaTime} where zambiaId = #{zambiaId}
+	</update>
+
+	<!-- 删除新闻赞记录 -->
+	<delete id="deleteZambia" parameterType="int">
+		delete from t_zambia where zambiaId=#{zambiaId}
+	</delete>
+
+</mapper>

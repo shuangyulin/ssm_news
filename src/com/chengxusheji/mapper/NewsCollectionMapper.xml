@@ -1,0 +1,50 @@
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.NewsCollectionMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加新闻收藏记录 -->
+	<insert id="addNewsCollection" parameterType="newsCollection">
+		insert into t_newsCollection(newsObj,userObj,collectTime) values 
+		(#{newsObj.newsId},#{userObj.user_name},#{collectTime})
+	</insert>
+
+	<!-- 按照查询条件分页查询新闻收藏记录 -->
+	<select id="queryNewsCollection" resultMap="newsCollectionMap" >
+		select t_newsCollection.* from t_newsCollection,t_news,t_userInfo ${where} and t_newsCollection.newsObj = t_news.newsId and t_newsCollection.userObj = t_userInfo.user_name limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="newsCollectionMap" type="newsCollection">
+        <id property="collectionId" column="collectionId" />
+        <association property="newsObj" column="newsObj" select="com.chengxusheji.mapper.NewsMapper.getNews" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有新闻收藏记录 -->
+	<select id="queryNewsCollectionList" resultMap="newsCollectionMap" >
+		select t_newsCollection.* from t_newsCollection,t_news,t_userInfo ${where} and t_newsCollection.newsObj = t_news.newsId and t_newsCollection.userObj = t_userInfo.user_name
+	</select>
+
+    <!-- 按照查询条件的新闻收藏记录数 -->
+	<select id="queryNewsCollectionCount" resultType="int">
+		select count(*) from t_newsCollection,t_news,t_userInfo ${where} and t_newsCollection.newsObj = t_news.newsId and t_newsCollection.userObj = t_userInfo.user_name
+	</select>
+
+	<!-- 根据主键查询某个新闻收藏记录 -->
+	<select id="getNewsCollection" parameterType="int" resultMap="newsCollectionMap">
+		select * from t_newsCollection where t_newsCollection.collectionId = #{collectionId}
+	</select>
+
+	<!-- 更新新闻收藏记录 -->
+	<update id="updateNewsCollection" parameterType="newsCollection">
+		update t_newsCollection set newsObj=#{newsObj.newsId},userObj=#{userObj.user_name},collectTime=#{collectTime} where collectionId = #{collectionId}
+	</update>
+
+	<!-- 删除新闻收藏记录 -->
+	<delete id="deleteNewsCollection" parameterType="int">
+		delete from t_newsCollection where collectionId=#{collectionId}
+	</delete>
+
+</mapper>

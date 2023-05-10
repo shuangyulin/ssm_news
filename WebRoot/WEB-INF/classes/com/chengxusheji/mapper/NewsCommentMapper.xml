@@ -1,0 +1,50 @@
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.NewsCommentMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加新闻评论记录 -->
+	<insert id="addNewsComment" parameterType="newsComment">
+		insert into t_newsComment(newsObj,userObj,content,commentTime) values 
+		(#{newsObj.newsId},#{userObj.user_name},#{content},#{commentTime})
+	</insert>
+
+	<!-- 按照查询条件分页查询新闻评论记录 -->
+	<select id="queryNewsComment" resultMap="newsCommentMap" >
+		select t_newsComment.* from t_newsComment,t_news,t_userInfo ${where} and t_newsComment.newsObj = t_news.newsId and t_newsComment.userObj = t_userInfo.user_name limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="newsCommentMap" type="newsComment">
+        <id property="commentId" column="commentId" />
+        <association property="newsObj" column="newsObj" select="com.chengxusheji.mapper.NewsMapper.getNews" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有新闻评论记录 -->
+	<select id="queryNewsCommentList" resultMap="newsCommentMap" >
+		select t_newsComment.* from t_newsComment,t_news,t_userInfo ${where} and t_newsComment.newsObj = t_news.newsId and t_newsComment.userObj = t_userInfo.user_name
+	</select>
+
+    <!-- 按照查询条件的新闻评论记录数 -->
+	<select id="queryNewsCommentCount" resultType="int">
+		select count(*) from t_newsComment,t_news,t_userInfo ${where} and t_newsComment.newsObj = t_news.newsId and t_newsComment.userObj = t_userInfo.user_name
+	</select>
+
+	<!-- 根据主键查询某个新闻评论记录 -->
+	<select id="getNewsComment" parameterType="int" resultMap="newsCommentMap">
+		select * from t_newsComment where t_newsComment.commentId = #{commentId}
+	</select>
+
+	<!-- 更新新闻评论记录 -->
+	<update id="updateNewsComment" parameterType="newsComment">
+		update t_newsComment set newsObj=#{newsObj.newsId},userObj=#{userObj.user_name},content=#{content},commentTime=#{commentTime} where commentId = #{commentId}
+	</update>
+
+	<!-- 删除新闻评论记录 -->
+	<delete id="deleteNewsComment" parameterType="int">
+		delete from t_newsComment where commentId=#{commentId}
+	</delete>
+
+</mapper>
